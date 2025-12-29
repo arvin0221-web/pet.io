@@ -160,8 +160,16 @@ function gameGuess(){
 }
 
 function gameCoinFlip(){
-if(Math.random()<0.5)earn(60);
+  if(Math.random() < 0.5){
+    earn(40);
+    alert("正面！+40");
+  }else{
+    game.gold = Math.max(0, game.gold - 20);
+    updateUI(); saveGame();
+    alert("反面！-20");
+  }
 }
+
 function gameTimer(){
   const start = Date.now();
 
