@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Pet Keeper</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#111;color:#eee}
+h1,h2{margin:6px 0}
+button{padding:6px 10px;margin:4px;background:#333;color:#eee;border:1px solid #555;cursor:pointer}
+button:hover{background:#444}
+.panel{border:1px solid #333;margin:8px;padding:8px;border-radius:6px}
+.pet{border:1px solid #444;margin:6px;padding:6px;border-radius:6px}
+.small{font-size:12px;color:#aaa}
+input{background:#222;color:#eee;border:1px solid #555;padding:4px}
+</style>
+</head>
+<body>
+
+<h1>🐾 養寵物遊戲</h1>
+
+<div class="panel">
+<div>金幣：<span id="gold">0</span></div>
+<div>總加成：<span id="bonus">1.00</span>x</div>
+<button onclick="saveGame()">存檔</button>
+<button onclick="resetGame()">重置</button>
+</div>
+
+<div class="panel">
+<h2>🎮 小遊戲</h2>
+<button onclick="gameClick()">點擊遊戲</button>
+<button onclick="gameGuess()">猜數字</button>
+<button onclick="gameCoinFlip()">擲硬幣</button>
+<button onclick="gameTimer()">反應測試</button>
+<div class="small">所有收益都會吃加成</div>
+</div>
+
+<div class="panel">
+<h2>🍖 商店</h2>
+<button onclick="buyFood()">購買飼料（50 金幣）</button>
+<div>飼料數量：<span id="food">0</span></div>
+<hr>
+<div id="shop"></div>
+</div>
+
+<div class="panel">
+<h2>🐶 我的寵物</h2>
+<div id="owned"></div>
+</div>
+
+<script>
+const PETS=[
+{name:"史萊姆啾",price:50,bonus:0.05},
+{name:"灰尾鼠",price:80,bonus:0.06},
+{name:"火苗蜥",price:120,bonus:0.08},
+{name:"藍羽鳥",price:150,bonus:0.1},
+{name:"石殼龜",price:200,bonus:0.12},
+{name:"夜貓影",price:260,bonus:0.14},
+{name:"風角羊",price:320,bonus:0.16},
+{name:"雷芽狐",price:380,bonus:0.18},
+{name:"霧鱗蛇",price:450,bonus:0.2},
+{name:"鐵牙犬",price:520,bonus:0.22},
+{name:"晶眼貓",price:600,bonus:0.25},
+{name:"岩背熊",price:700,bonus:0.28},
+{name:"星紋鹿",price:820,bonus:0.32},
+{name:"沙爪蠍",price:950,bonus:0.36},
+{name:"月影狼",price:1100,bonus:0.4},
+{name:"潮汐龜",price:1300,bonus:0.45},
+{name:"熔核蜥",price:1550,bonus:0.5},
+{name:"雷角牛",price:1800,bonus:0.55},
+{name:"幽燼鳥",price:2100,bonus:0.6},
+{name:"冰晶狐",price:2450,bonus:0.65},
+{name:"蒼翼龍",price:2850,bonus:0.7},
+{name:"深海魷",price:3300,bonus:0.75},
+{name:"荒原象",price:3800,bonus:0.8},
+{name:"雷鳴虎",price:4350,bonus:0.85},
+{name:"夜紋豹",price:4950,bonus:0.9},
+{name:"星塵兔",price:5600,bonus:0.95},
+{name:"金羽鷹",price:6300,bonus:1.0},
+{name:"虛空蛇",price:7050,bonus:1.05},
+{name:"裂岩犀",price:7850,bonus:1.1},
+{name:"蒼雷鯨",price:8700,bonus:1.15},
+{name:"幻焰鹿",price:9600,bonus:1.2},
+{name:"影鎧熊",price:10500,bonus:1.25},
+{name:"星冠狐",price:11500,bonus:1.3},
+{name:"雷紋猿",price:12600,bonus:1.35},
+{name:"深淵龍",price:13800,bonus:1.4},
+{name:"神木鹿",price:15100,bonus:1.45},
+{name:"熾陽鳥",price:16500,bonus:1.5},
+{name:"冥河龜",price:18000,bonus:1.55},
+{name:"天穹虎",price:19600,bonus:1.6},
+{name:"幻星貓",price:21300,bonus:1.65},
+{name:"雷冕獅",price:23100,bonus:1.7},
+{name:"虛晶蛇",price:25000,bonus:1.75},
+{name:"蒼夜狼",price:27000,bonus:1.8},
+{name:"神焰鳳",price:29100,bonus:1.85},
+{name:"混沌龍",price:31300,bonus:1.9},
+{name:"時序鹿",price:33600,bonus:1.95},
+{name:"無垠鯨",price:36000,bonus:2.0},
+{name:"終焉獸",price:38500,bonus:2.2}
+];
+
+let game={
+gold:0,
+food:0,
+owned:[]
+};
+
+function stageName(lv){
+return ["幼體","成長","成熟","完全體"][lv];
+}
+
+function totalBonus(){
+let b=1;
+game.owned.forEach(p=>{
+b+=p.bonus*(1+p.level*0.5);
+});
+return b;
+}
+
+function saveGame(){
+localStorage.setItem("petGameSave",JSON.stringify(game));
+}
+
+function loadGame(){
+const d=localStorage.getItem("petGameSave");
+if(d)game=JSON.parse(d);
+updateUI();
+}
+
+function resetGame(){
+localStorage.removeItem("petGameSave");
+location.reload();
+}
+
+function earn(base){
+game.gold+=Math.floor(base*totalBonus());
+updateUI();saveGame();
+}
+
+function gameClick(){earn(10);}
+function gameGuess(){
+const n=Math.floor(Math.random()*5)+1;
+const g=prompt("猜 1~5");
+if(Number(g)===n)earn(80);
+}
+function gameCoinFlip(){
+if(Math.random()<0.5)earn(60);
+}
+function gameTimer(){
+const t=Date.now();
+setTimeout(()=>{
+if(confirm("現在點 OK"))earn(100-(Date.now()-t)/20);
+},Math.random()*2000+1000);
+}
+
+function buyFood(){
+if(game.gold>=50){game.gold-=50;game.food++;}
+updateUI();saveGame();
+}
+
+function feedPet(i){
+if(game.food<=0)return;
+const p=game.owned[i];
+game.food--;
+p.exp+=1;
+if(p.exp>=3&&p.level<3){
+p.exp=0;p.level++;
+}
+updateUI();saveGame();
+}
+
+function buyPet(i){
+const p=PETS[i];
+if(game.gold>=p.price){
+game.gold-=p.price;
+game.owned.push({...p,level:0,exp:0});
+}
+updateUI();saveGame();
+}
+
+function updateUI(){
+document.getElementById("gold").textContent=game.gold;
+document.getElementById("bonus").textContent=totalBonus().toFixed(2);
+document.getElementById("food").textContent=game.food;
+
+const shop=document.getElementById("shop");
+shop.innerHTML="";
+PETS.forEach((p,i)=>{
+const d=document.createElement("div");
+d.className="pet";
+d.innerHTML=`<b>${p.name}</b><br>價格:${p.price}<br>基礎加成:+${p.bonus}`;
+const b=document.createElement("button");
+b.textContent="購買";
+b.onclick=()=>buyPet(i);
+d.appendChild(b);
+shop.appendChild(d);
+});
+
+const owned=document.getElementById("owned");
+owned.innerHTML="";
+game.owned.forEach((p,i)=>{
+const d=document.createElement("div");
+d.className="pet";
+d.innerHTML=`<b>${p.name}</b><br>
+階段:${stageName(p.level)}<br>
+加成:${(p.bonus*(1+p.level*0.5)).toFixed(2)}`;
+const b=document.createElement("button");
+b.textContent="餵食";
+b.onclick=()=>feedPet(i);
+d.appendChild(b);
+owned.appendChild(d);
+});
+}
+
+loadGame();
+</script>
+</body>
+</html>
