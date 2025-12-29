@@ -147,10 +147,33 @@ function gameCoinFlip(){
 if(Math.random()<0.5)earn(60);
 }
 function gameTimer(){
-const t=Date.now();
-setTimeout(()=>{
-if(confirm("現在點 OK"))earn(100-(Date.now()-t)/20);
-},Math.random()*2000+1000);
+  const start = Date.now();
+
+  setTimeout(()=>{
+    const shownAt = Date.now();
+
+    if(confirm("現在點 OK")){
+      const reaction = Date.now() - shownAt;
+      let reward = 0;
+
+      // 反應快：60~110
+      if(reaction <= 300){
+        reward = 110 - Math.floor(reaction / 6);
+        if(reward < 60) reward = 60;
+      }
+      // 普通反應：20~50
+      else if(reaction <= 800){
+        reward = 50 - Math.floor((reaction - 300) / 10);
+        if(reward < 20) reward = 20;
+      }
+      // 超慢：0
+      else{
+        reward = 0;
+      }
+
+      earn(reward);
+    }
+  }, Math.random()*2000 + 1000);
 }
 
 function buyFood(){
