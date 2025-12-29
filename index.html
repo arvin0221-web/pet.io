@@ -259,7 +259,76 @@ owned.appendChild(d);
 });
 }
 
+<script>
 loadGame();
+
+// 愛心粒子程式碼也放在這裡
+const bgCanvas = document.getElementById("heartBgCanvas");
+const bgCtx = bgCanvas.getContext("2d");
+
+function resizeBgCanvas() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeBgCanvas);
+resizeBgCanvas();
+
+const bgHearts = [];
+const maxHearts = 50;
+
+function createHeart(){
+  bgHearts.push({
+    x: Math.random() * bgCanvas.width,
+    y: -10,
+    vy: 0.5 + Math.random()*1,
+    vx: Math.random()*0.5-0.25,
+    size: 5 + Math.random()*10,
+    alpha: 0.4 + Math.random()*0.6
+  });
+}
+
+function drawBgHeart(h){
+  bgCtx.save();
+  bgCtx.translate(h.x, h.y);
+  bgCtx.scale(h.size/20, h.size/20);
+  bgCtx.globalAlpha = h.alpha;
+  bgCtx.fillStyle = "#ff6fae";
+
+  bgCtx.beginPath();
+  bgCtx.moveTo(0,6);
+  bgCtx.bezierCurveTo(-10,-6,-20,8,0,22);
+  bgCtx.bezierCurveTo(20,8,10,-6,0,6);
+  bgCtx.fill();
+
+  bgCtx.restore();
+}
+
+function updateBgHearts(){
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+
+  if(bgHearts.length < maxHearts){
+    createHeart();
+  }
+
+  for(let i = bgHearts.length-1; i>=0; i--){
+    const h = bgHearts[i];
+    h.x += h.vx;
+    h.y += h.vy;
+
+    drawBgHeart(h);
+
+    if(h.y > bgCanvas.height+20 || h.x < -20 || h.x > bgCanvas.width+20){
+      bgHearts.splice(i,1);
+    }
+  }
+
+  requestAnimationFrame(updateBgHearts);
+}
+
+updateBgHearts();
 </script>
+
+<canvas id="heartBgCanvas"></canvas>
 </body>
 </html>
+
