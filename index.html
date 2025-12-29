@@ -139,10 +139,26 @@ updateUI();saveGame();
 
 function gameClick(){earn(10);}
 function gameGuess(){
-const n=Math.floor(Math.random()*5)+1;
-const g=prompt("猜 1~5");
-if(Number(g)===n)earn(80);
+  const input = prompt("猜 1~5（一定要輸入數字）");
+  if(input === null) return; // 使用者取消
+
+  const g = parseInt(input, 10);
+  if(isNaN(g) || g < 1 || g > 5){
+    alert("請輸入 1~5 的數字");
+    return;
+  }
+
+  const n = Math.floor(Math.random()*5) + 1;
+
+  if(g === n){
+    const reward = 80;
+    earn(reward);
+    alert("🎉 猜中了！獲得 " + reward + " 金幣");
+  }else{
+    alert("❌ 猜錯了，答案是 " + n);
+  }
 }
+
 function gameCoinFlip(){
 if(Math.random()<0.5)earn(60);
 }
