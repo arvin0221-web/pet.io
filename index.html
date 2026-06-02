@@ -1,6 +1,35 @@
-// 強制清理大石頭的臨時腳本
-console.log("開始強制刪除 rooms...");
-firebase.database().ref('rooms').remove()
-  .then(() => alert("rooms 節點已成功被程式碼強制刪除！"))
-  .catch((err) => alert("刪除失敗：" + err.message));
-  
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- 載入 Firebase 核心與 Realtime Database 模組 -->
+  <script src="https://gstatic.com"></script>
+  <script src="https://gstatic.com"></script>
+</head>
+<body>
+  <h1>Firebase 救磚強制刪除工具</h1>
+  <button onclick="cleanRooms()">點擊強制清空 rooms</button>
+
+  <script>
+    // ⚠️ 請在此處貼上您從 Firebase 後台複製的專案金鑰配置
+    const firebaseConfig = {
+  apiKey: "AIzaSyCaWzHzxTte5_o02Opq7002T386pVHTMHY",
+  authDomain: "large-rpg.firebaseapp.com",
+  databaseURL: "https://large-rpg-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "large-rpg",
+  storageBucket: "large-rpg.firebasestorage.app",
+  messagingSenderId: "285439658443",
+  appId: "1:285439658443:web:e0ba91ac0c6725f3464e4e",
+  measurementId: "G-JE1BVYM7P8"
+};
+    
+    // 初始化
+    firebase.initializeApp(firebaseConfig);
+
+    function cleanRooms() {
+      firebase.database().ref('rooms').remove()
+        .then(() => alert('刪除成功！請回遊戲測試戰鬥。'))
+        .catch(error => alert('錯誤原因：' + error.message));
+    }
+  </script>
+</body>
+</html>
